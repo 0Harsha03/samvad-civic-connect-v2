@@ -206,9 +206,9 @@ export const CitizenDashboard = ({ reports, userId, onNavigate }: CitizenDashboa
                   </div>
 
                   {/* Feed Item Body - Added Card Depth */}
-                  <div className="grid md:grid-cols-[1fr_240px] gap-10 bg-white/40 dark:bg-zinc-900/40 backdrop-blur-sm p-8 rounded-[2.5rem] border border-white/20 shadow-sm group-hover:shadow-2xl group-hover:bg-white/60 dark:group-hover:bg-zinc-900/60 transition-all duration-500">
-                    <div className="space-y-6">
-                      <div className="space-y-3">
+                  <div className="grid md:grid-cols-[1fr_280px] gap-10 bg-white/40 dark:bg-zinc-900/40 backdrop-blur-sm p-8 rounded-[2.5rem] border border-white/20 shadow-sm group-hover:shadow-2xl group-hover:bg-white/60 dark:group-hover:bg-zinc-900/60 transition-all duration-500 overflow-hidden">
+                    <div className="space-y-8">
+                      <div className="space-y-4">
                         <div className="flex flex-wrap items-center gap-3">
                           <h3 className="text-3xl font-black tracking-tight text-foreground leading-[1.1] group-hover:text-primary transition-colors">
                             {report.title}
@@ -217,63 +217,121 @@ export const CitizenDashboard = ({ reports, userId, onNavigate }: CitizenDashboa
                             "px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.2em] shadow-sm",
                             report.priority >= 4 ? "bg-destructive text-white" : "bg-primary/10 text-primary"
                           )}>
-                            {report.priority >= 4 ? "CRITICAL" : `P${report.priority}`}
+                            {report.priority >= 4 ? "CRITICAL SEVERITY" : `PRIORITY LEVEL ${report.priority}`}
                           </span>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-3">
                           <Badge className="bg-zinc-800 dark:bg-zinc-200 text-white dark:text-zinc-800 border-none text-[9px] font-black uppercase tracking-widest px-3 py-1">
                             {report.category}
                           </Badge>
-                          <span className="text-[10px] font-bold text-muted-foreground/60 tracking-wider">REF: {report.id}</span>
+                          <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground/60 tracking-wider">
+                            <Users className="h-3 w-3" />
+                            ASSIGNED: {report.assignedStaffId || "Civic AI Core"}
+                          </div>
                         </div>
                       </div>
 
-                      <p className="text-lg text-foreground/70 font-medium leading-relaxed max-w-2xl">
-                        {report.description}
+                      <p className="text-lg text-foreground/70 font-medium leading-relaxed max-w-2xl line-clamp-2 italic">
+                        "{report.description}"
                       </p>
 
+                      {/* Status Progression Bar */}
+                      <div className="space-y-4 py-2">
+                        <div className="flex justify-between items-center px-2">
+                          {["Submitted", "Assigned", "In Progress", "Resolved"].map((step, i) => {
+                            const statuses = ["Submitted", "Assigned", "In Progress", "Resolved"];
+                            const currentIdx = statuses.indexOf(report.status);
+                            const stepIdx = i;
+                            const isActive = stepIdx <= currentIdx;
+                            const isCurrent = stepIdx === currentIdx;
+
+                            return (
+                              <div key={step} className="flex flex-col items-center gap-2 relative">
+                                <div className={cn(
+                                  "w-3 h-3 rounded-full transition-all duration-700",
+                                  isCurrent ? "scale-150 ring-4 ring-primary/20 bg-primary" : 
+                                  isActive ? "bg-primary/60" : "bg-muted-foreground/20"
+                                )} />
+                                <span className={cn(
+                                  "text-[8px] font-black uppercase tracking-widest",
+                                  isCurrent ? "text-primary" : isActive ? "text-foreground/60" : "text-muted-foreground/30"
+                                )}>
+                                  {step}
+                                </span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                        <div className="h-1.5 w-full bg-muted/30 rounded-full overflow-hidden relative">
+                          <motion.div 
+                            initial={{ width: 0 }}
+                            animate={{ width: `${(["Submitted", "Assigned", "In Progress", "Resolved"].indexOf(report.status) / 3) * 100}%` }}
+                            className="absolute h-full bg-gradient-to-r from-primary via-secondary to-success shadow-[0_0_10px_rgba(var(--primary),0.5)]" 
+                          />
+                        </div>
+                      </div>
+
+                      {/* Metadata Row */}
                       <div className="flex flex-wrap gap-4 items-center">
                         <div className="flex items-center gap-3 px-4 py-2 bg-background/50 rounded-2xl text-[11px] font-bold text-foreground/80 shadow-inner border border-white/10 group/loc">
-                          <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center transition-transform group-hover/loc:scale-110">
-                            <MapPin className="h-4 w-4 text-primary" />
-                          </div>
+                          <MapPin className="h-4 w-4 text-primary" />
                           {report.location.address.split(',')[0]}
                         </div>
+                        <div className="flex items-center gap-3 px-4 py-2 bg-background/50 rounded-2xl text-[11px] font-bold text-foreground/80 shadow-inner border border-white/10">
+                          <Clock className="h-4 w-4 text-secondary" />
+                          {formatDate(new Date(report.createdAt))}
+                        </div>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="flex gap-4 pt-4">
+                        <Button variant="outline" className="flex-1 rounded-2xl h-12 border-primary/20 text-primary font-black text-xs uppercase tracking-widest hover:bg-primary/5">
+                          View Full Case
+                        </Button>
+                        <Button className="flex-1 rounded-2xl h-12 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-black text-xs uppercase tracking-widest hover:scale-[1.02] transition-transform">
+                          Track Live
+                        </Button>
                       </div>
 
                       {report.staffComment && (
-                        <div className="bg-primary/5 rounded-[2rem] p-8 border-l-[6px] border-primary shadow-inner relative overflow-hidden group/comment mt-8">
+                        <div className="bg-primary/5 rounded-[2rem] p-8 border-l-[6px] border-primary shadow-inner relative overflow-hidden group/comment">
                           <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-bl-full -mr-12 -mt-12 transition-transform duration-700 group-hover/comment:scale-125"></div>
                           <div className="flex items-center gap-3 mb-4 relative">
                             <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shadow-lg">
                               <Shield className="h-5 w-5 text-primary" />
                             </div>
                             <div>
-                              <span className="text-[11px] font-black text-primary uppercase tracking-[0.3em] block">Government Directive</span>
-                              <span className="text-[9px] font-bold text-primary/60 uppercase tracking-widest">Case Verified Official</span>
+                              <span className="text-[11px] font-black text-primary uppercase tracking-[0.3em] block">Case Update</span>
+                              <span className="text-[9px] font-bold text-primary/60 uppercase tracking-widest">Verified Official Directive</span>
                             </div>
                           </div>
                           <p className="text-base text-foreground/90 leading-relaxed italic font-bold relative pl-4 border-l-2 border-primary/20">
                             "{report.staffComment}"
                           </p>
-                          <div className="mt-4 flex justify-end relative">
-                            <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">
-                              Updated • {formatDate(new Date(report.updatedAt))}
-                            </span>
-                          </div>
                         </div>
                       )}
                     </div>
 
                     {/* Media / Visual Side - Enhanced Visual Strength */}
                     <div className="space-y-6">
-                      <div className="aspect-[4/5] rounded-[2rem] overflow-hidden border-2 border-white/30 shadow-2xl group/media relative">
-                        <img 
-                          src={report.photoUrl || "https://images.unsplash.com/photo-1518005020251-eba3f7a89ac2?auto=format&fit=crop&q=80"} 
-                          className="w-full h-full object-cover transition-all duration-700 group-hover/media:scale-110 group-hover/media:rotate-1"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover/media:opacity-100 transition-opacity"></div>
-                      </div>
+                      {report.photoUrl ? (
+                        <div className="aspect-[4/5] rounded-[2rem] overflow-hidden border-2 border-white/30 shadow-2xl group/media relative bg-muted/20">
+                          <img 
+                            src={report.photoUrl} 
+                            className="w-full h-full object-cover transition-all duration-700 group-hover/media:scale-110 group-hover/media:rotate-1"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover/media:opacity-100 transition-opacity"></div>
+                        </div>
+                      ) : (
+                        <div className="aspect-[4/5] rounded-[2rem] border-2 border-dashed border-border/50 flex flex-col items-center justify-center bg-muted/5 group/media transition-colors hover:bg-muted/10">
+                          <div className="w-16 h-16 rounded-full bg-muted/20 flex items-center justify-center mb-4 group-hover/media:scale-110 transition-transform">
+                            <AlertTriangle className="h-8 w-8 text-muted-foreground/30" />
+                          </div>
+                          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 text-center px-6 leading-relaxed">
+                            No Visual Data Available
+                          </span>
+                        </div>
+                      )}
                       
                       {/* Stylized Location Info Card */}
                       <div className="bg-zinc-800/5 dark:bg-white/5 rounded-[1.5rem] p-5 border border-white/10 group/map cursor-pointer hover:bg-primary/5 transition-all duration-300">
@@ -283,7 +341,7 @@ export const CitizenDashboard = ({ reports, userId, onNavigate }: CitizenDashboa
                           </div>
                           <div>
                             <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Location</p>
-                            <p className="text-xs font-bold text-foreground truncate max-w-[120px]">View Details</p>
+                            <p className="text-xs font-bold text-foreground truncate max-w-[120px]">View Analytics</p>
                           </div>
                         </div>
                       </div>
