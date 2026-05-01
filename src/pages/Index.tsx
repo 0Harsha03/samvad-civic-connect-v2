@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
 import { Header } from "@/components/Header";
@@ -17,11 +17,57 @@ interface User {
   role: "citizen" | "staff";
 }
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
 const Index = () => {
-  const [currentPage, setCurrentPage] = useState<string>("home");
-  const [user, setUser] = useState<User | null>(null);
-  const [reports, setReports] = useState<Report[]>(mockReports);
+  const [user, setUser] = useState<User | null>(() => {
+    const saved = localStorage.getItem("samvad_user");
+    if (!saved) return null;
+    try {
+      const parsed = JSON.parse(saved);
+      return { ...parsed, createdAt: new Date(parsed.createdAt) };
+    } catch (e) {
+      return null;
+    }
+  });
+
+  const [reports, setReports] = useState<Report[]>([]);
+
+  useEffect(() => {
+    const fetchReports = async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/reports`);
+        const data = await response.json();
+        const formattedData = data.map((r: any) => ({
+          ...r,
+          createdAt: new Date(r.createdAt),
+          updatedAt: new Date(r.updatedAt)
+        }));
+        // If server is empty, use mock reports
+        setReports(formattedData.length > 0 ? formattedData : mockReports);
+      } catch (error) {
+        console.error("Failed to fetch reports:", error);
+        setReports(mockReports);
+      }
+    };
+    fetchReports();
+  }, []);
+
+  const [currentPage, setCurrentPage] = useState<string>(() => {
+    if (user) {
+      return user.role === "citizen" ? "dashboard" : "admin";
+    }
+    return "home";
+  });
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem("samvad_user", JSON.stringify(user));
+    } else {
+      localStorage.removeItem("samvad_user");
+    }
+  }, [user]);
 
   const handleLogin = (userData: User) => {
     setUser(userData);
@@ -49,25 +95,47 @@ const Index = () => {
     }
   };
 
-  const handleReportSubmitted = (newReport: Report) => {
-    setReports(prev => [newReport, ...prev]);
-    setCurrentPage("dashboard");
-    toast({
-      title: "Report Submitted Successfully!",
-      description: `Your report #${newReport.id} has been submitted and will be reviewed by government staff.`,
-    });
+  const handleReportSubmitted = async (newReport: Report) => {
+    try {
+      const response = await fetch(`${API_URL}/api/reports`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newReport),
+      });
+      const savedReport = await response.json();
+      setReports(prev => [{ ...savedReport, createdAt: new Date(savedReport.createdAt), updatedAt: new Date(savedReport.updatedAt) }, ...prev]);
+      setCurrentPage("dashboard");
+      toast({
+        title: "Report Submitted Successfully!",
+        description: `Your report #${newReport.id} has been saved to our secure database.`,
+      });
+    } catch (error) {
+      console.error("Submission failed:", error);
+      // Fallback to local state if backend is down
+      setReports(prev => [newReport, ...prev]);
+      setCurrentPage("dashboard");
+    }
   };
 
-  const handleUpdateReport = (reportId: string, updates: Partial<Report>) => {
-    setReports(prev => prev.map(report =>
-      report.id === reportId
-        ? { ...report, ...updates }
-        : report
-    ));
-    toast({
-      title: "Report Updated",
-      description: `Report #${reportId} has been updated successfully.`,
-    });
+  const handleUpdateReport = async (reportId: string, updates: Partial<Report>) => {
+    try {
+      await fetch(`${API_URL}/api/reports/${reportId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updates),
+      });
+      setReports(prev => prev.map(report =>
+        report.id === reportId
+          ? { ...report, ...updates, updatedAt: new Date() }
+          : report
+      ));
+      toast({
+        title: "Report Updated",
+        description: `Report #${reportId} has been updated successfully.`,
+      });
+    } catch (error) {
+      console.error("Update failed:", error);
+    }
   };
 
   const renderPage = () => {

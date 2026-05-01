@@ -1,0 +1,73 @@
+const express = require('express');
+const cors = require('cors');
+require('dotenv').config();
+const { Report, initDB } = require('./src/models/Report');
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+// CORS Configuration
+const corsOptions = {
+  origin: process.env.FRONTEND_URL || 'http://localhost:8080',
+  optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
+app.use(express.json());
+
+// Initialize Database
+initDB();
+
+// Routes
+app.get('/api/reports', async (req, res) => {
+  try {
+    const reports = await Report.findAll({
+      order: [['createdAt', 'DESC']]
+    });
+    res.json(reports);
+  } catch (error) {
+    console.error('Fetch error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.post('/api/reports', async (req, res) => {
+  try {
+    // Ensure userId is present
+    if (!req.body.userId) {
+      return res.status(400).json({ error: 'userId is required' });
+    }
+    const newReport = await Report.create(req.body);
+    res.status(201).json(newReport);
+  } catch (error) {
+    console.error('Create error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.patch('/api/reports/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const [updated] = await Report.update(req.body, {
+      where: { id: id }
+    });
+    if (updated) {
+      const updatedReport = await Report.findByPk(id);
+      return res.json(updatedReport);
+    }
+    res.status(404).json({ error: 'Report not found' });
+  } catch (error) {
+    console.error('Update error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});

@@ -1,73 +1,98 @@
-# Welcome to your Lovable project
+# Samvad - Civic Connect 🏛️
 
-## Project info
+**Samvad** is a modern, full-stack civic issue reporting platform designed to bridge the gap between citizens and government authorities. It allows citizens to report local issues (like potholes, waste, or street light failures) and track their resolution in real-time.
 
-**URL**: https://lovable.dev/projects/69cbecc3-417b-4360-ad8b-b3bd5090a03d
+---
 
-## How can I edit this code?
+## 🚀 Features
 
-There are several ways of editing your application.
+- **Citizen Dashboard**: Report new issues with location data, photos, and descriptions. Track existing reports.
+- **Admin Command Center**: Authorities can manage, assign, and resolve reported issues.
+- **Real-time Persistence**: Data is persisted in a PostgreSQL cloud database (Supabase).
+- **Aesthetic Design**: Premium UI with glassmorphism, fluid animations (Framer Motion), and responsive layout.
+- **Role-based Access**: Separate interfaces for Citizens and Government Staff.
 
-**Use Lovable**
+---
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/69cbecc3-417b-4360-ad8b-b3bd5090a03d) and start prompting.
+## 🛠️ Tech Stack
 
-Changes made via Lovable will be committed automatically to this repo.
+### Frontend
+- **Framework**: React + Vite
+- **Styling**: Tailwind CSS + shadcn/ui
+- **Animations**: Framer Motion
+- **Icons**: Lucide React
 
-**Use your preferred IDE**
+### Backend
+- **Server**: Node.js + Express
+- **ORM**: Sequelize
+- **Database**: PostgreSQL (Supabase) / SQLite (Local fallback)
+- **Validation**: Zod
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+---
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## ⚙️ Setup Instructions
 
-Follow these steps:
+### 1. Prerequisites
+- Node.js (v18+)
+- PostgreSQL Database (e.g., Supabase)
 
+### 2. Local Setup
+
+**Clone the repository:**
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+git clone <your-repo-url>
+cd samvad-civic-connect
+```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+**Frontend Setup:**
+```sh
+npm install
+# Create .env and add VITE_API_URL=http://localhost:5000
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+**Backend Setup:**
+```sh
+cd server
+npm install
+# Create .env and add your DATABASE_URL (see .env.example)
+npm start
+```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+---
 
-**Use GitHub Codespaces**
+## 🌐 Deployment
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Database (Supabase)
+1. Create a new project on [Supabase](https://supabase.com/).
+2. Copy the **Connection Pooler** URL (Transaction mode) and add it as `DATABASE_URL` in your backend environment variables.
 
-## What technologies are used for this project?
+### Backend (Render / Railway)
+1. Link your GitHub repo.
+2. Set the root directory to `server`.
+3. Add environment variables: `DATABASE_URL`, `FRONTEND_URL`, `PORT`.
+4. Build command: `npm install`
+5. Start command: `npm start`
 
-This project is built with:
+### Frontend (Vercel / Netlify)
+1. Link your GitHub repo.
+2. Set the build command: `npm run build`
+3. Set the output directory: `dist`
+4. Add environment variable: `VITE_API_URL` (pointing to your deployed backend).
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+---
 
-## How can I deploy this project?
+## 📝 Environment Variables
 
-Simply open [Lovable](https://lovable.dev/projects/69cbecc3-417b-4360-ad8b-b3bd5090a03d) and click on Share -> Publish.
+### Backend (.env)
+- `DATABASE_URL`: PostgreSQL connection string.
+- `PORT`: Port for the server (defaults to 5000).
+- `FRONTEND_URL`: URL of your deployed frontend (for CORS).
 
-## Can I connect a custom domain to my Lovable project?
+### Frontend (.env)
+- `VITE_API_URL`: URL of your deployed backend API.
 
-Yes, you can!
+---
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## 📄 License
+This project is licensed under the MIT License.

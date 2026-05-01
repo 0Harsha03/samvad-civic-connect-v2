@@ -11,7 +11,7 @@ export interface Report {
     lng: number;
     address?: string;
   };
-  citizenId: string;
+  userId: string;
   assignedStaffId?: string;
   staffComment?: string;
   createdAt: Date;

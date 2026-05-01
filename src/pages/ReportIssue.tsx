@@ -101,7 +101,7 @@ export const ReportIssue = ({ userId, onReportSubmitted }: ReportIssueProps) => 
       status: "Submitted",
       photoUrl: photoPreview || undefined,
       location,
-      citizenId: userId,
+      userId: userId,
       createdAt: new Date(),
       updatedAt: new Date()
     };

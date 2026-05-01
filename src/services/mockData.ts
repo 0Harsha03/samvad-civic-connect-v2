@@ -31,7 +31,7 @@ export const mockReports: Report[] = [
       lng: 77.2090,
       address: "MG Road, Connaught Place, New Delhi"
     },
-    citizenId: "citizen1",
+    userId: "citizen1",
     assignedStaffId: "staff1",
     staffComment: "Work crew assigned, repair scheduled for next week",
     createdAt: new Date("2024-01-20T10:30:00"),
@@ -50,7 +50,7 @@ export const mockReports: Report[] = [
       lng: 77.2295,
       address: "Karol Bagh Market, New Delhi"
     },
-    citizenId: "citizen1",
+    userId: "citizen1",
     assignedStaffId: "staff1",
     staffComment: "Cleaning crew notified",
     createdAt: new Date("2024-01-22T09:15:00"),
@@ -68,7 +68,7 @@ export const mockReports: Report[] = [
       lng: 77.2085,
       address: "Janpath, Central Delhi"
     },
-    citizenId: "citizen1",
+    userId: "citizen1",
     staffComment: "Light bulb replaced and tested",
     createdAt: new Date("2024-01-18T19:45:00"),
     updatedAt: new Date("2024-01-19T16:30:00")
@@ -86,7 +86,7 @@ export const mockReports: Report[] = [
       lng: 77.2177,
       address: "Rajouri Garden, West Delhi"
     },
-    citizenId: "citizen1",
+    userId: "citizen1",
     createdAt: new Date("2024-01-23T08:20:00"),
     updatedAt: new Date("2024-01-23T08:20:00")
   },
@@ -102,7 +102,7 @@ export const mockReports: Report[] = [
       lng: 77.1716,
       address: "Punjabi Bagh, West Delhi"
     },
-    citizenId: "citizen1",
+    userId: "citizen1",
     assignedStaffId: "staff1",
     staffComment: "Technical team dispatched",
     createdAt: new Date("2024-01-23T16:10:00"),

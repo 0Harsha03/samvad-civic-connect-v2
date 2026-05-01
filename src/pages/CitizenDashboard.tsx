@@ -27,7 +27,7 @@ export const CitizenDashboard = ({ reports, userId, onNavigate }: CitizenDashboa
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [filteredReports, setFilteredReports] = useState<Report[]>([]);
 
-  const userReports = reports.filter(report => report.citizenId === userId);
+  const userReports = reports.filter(report => report.userId === userId);
 
   useEffect(() => {
     let filtered = userReports;
