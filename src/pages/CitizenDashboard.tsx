@@ -138,7 +138,7 @@ export const CitizenDashboard = ({ reports, userId, onNavigate }: CitizenDashboa
       </div>
 
       {/* Activity Timeline Feed */}
-      <div className="relative space-y-12 before:absolute before:left-[19px] before:top-4 before:bottom-4 before:w-[2px] before:bg-gradient-to-b before:from-primary/20 before:via-secondary/20 before:to-transparent">
+      <div className="relative space-y-16 before:absolute before:left-[19px] before:top-4 before:bottom-4 before:w-[4px] before:bg-gradient-to-b before:from-primary before:via-secondary/40 before:to-transparent before:rounded-full">
         <AnimatePresence mode="popLayout">
           {filteredReports.length === 0 ? (
             <motion.div
@@ -161,88 +161,115 @@ export const CitizenDashboard = ({ reports, userId, onNavigate }: CitizenDashboa
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.4, delay: idx * 0.05 }}
-                className="relative pl-12 group"
+                className="relative pl-16 group"
               >
-                {/* Timeline Dot */}
+                {/* Timeline Dot - Enhanced Visual Strength */}
                 <div className={cn(
-                  "absolute left-0 top-1 w-10 h-10 rounded-full border-4 border-background z-10 flex items-center justify-center transition-all duration-500 group-hover:scale-125 shadow-xl",
-                  report.status === "Resolved" ? "bg-success" : 
-                  report.status === "In Progress" ? "bg-warning" : "bg-primary"
+                  "absolute left-[-1px] top-0 w-10 h-10 rounded-full border-4 border-background z-10 flex items-center justify-center transition-all duration-500 group-hover:scale-125 shadow-[0_0_20px_rgba(0,0,0,0.1)] group-hover:shadow-[0_0_25px_rgba(0,0,0,0.2)]",
+                  report.status === "Resolved" ? "bg-success text-white" : 
+                  report.status === "In Progress" ? "bg-warning text-white" : 
+                  report.status === "Assigned" ? "bg-primary text-white" : "bg-zinc-400 text-white"
                 )}>
-                  {getStatusIcon(report.status)}
+                  <div className="scale-110">
+                    {getStatusIcon(report.status)}
+                  </div>
                 </div>
 
-                <div className="space-y-6">
-                  {/* Date Header */}
-                  <div className="flex items-center gap-3">
-                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/60">
+                <div className="space-y-6 transition-all duration-500 group-hover:translate-x-2">
+                  {/* Date Header - High Contrast */}
+                  <div className="flex items-center gap-4">
+                    <span className="text-[11px] font-black uppercase tracking-[0.4em] text-foreground/80 bg-muted/50 px-3 py-1 rounded-md">
                       {formatDate(new Date(report.createdAt))}
                     </span>
-                    <div className="h-px flex-1 bg-border/20"></div>
+                    <div className="h-[2px] flex-1 bg-gradient-to-r from-border/40 to-transparent"></div>
+                    <Badge className={cn(
+                      "rounded-full px-4 py-1 border-none shadow-sm font-black text-[10px] uppercase tracking-widest",
+                      getStatusColor(report.status)
+                    )}>
+                      {report.status}
+                    </Badge>
                   </div>
 
-                  {/* Feed Item Body */}
-                  <div className="grid md:grid-cols-[1fr_200px] gap-8">
-                    <div className="space-y-4">
-                      <div className="flex flex-wrap items-start justify-between gap-4">
-                        <div>
-                          <h3 className="text-2xl font-black tracking-tight text-foreground group-hover:text-primary transition-colors cursor-pointer leading-none">
+                  {/* Feed Item Body - Added Card Depth */}
+                  <div className="grid md:grid-cols-[1fr_240px] gap-10 bg-white/40 dark:bg-zinc-900/40 backdrop-blur-sm p-8 rounded-[2.5rem] border border-white/20 shadow-sm group-hover:shadow-2xl group-hover:bg-white/60 dark:group-hover:bg-zinc-900/60 transition-all duration-500">
+                    <div className="space-y-6">
+                      <div className="space-y-3">
+                        <div className="flex flex-wrap items-center gap-3">
+                          <h3 className="text-3xl font-black tracking-tight text-foreground leading-[1.1] group-hover:text-primary transition-colors">
                             {report.title}
                           </h3>
-                          <div className="flex items-center gap-2 mt-2">
-                            <Badge variant="secondary" className="bg-primary/5 text-primary border-none text-[9px] font-black uppercase tracking-widest px-2 py-0.5">
-                              {report.category}
-                            </Badge>
-                            <span className="text-[10px] font-bold text-muted-foreground/40">#{report.id}</span>
-                          </div>
+                          <span className={cn(
+                            "px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.2em] shadow-sm",
+                            report.priority >= 4 ? "bg-destructive text-white" : "bg-primary/10 text-primary"
+                          )}>
+                            {report.priority >= 4 ? "CRITICAL" : `P${report.priority}`}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge className="bg-zinc-800 dark:bg-zinc-200 text-white dark:text-zinc-800 border-none text-[9px] font-black uppercase tracking-widest px-3 py-1">
+                            {report.category}
+                          </Badge>
+                          <span className="text-[10px] font-bold text-muted-foreground/60 tracking-wider">REF: {report.id}</span>
                         </div>
                       </div>
 
-                      <p className="text-base text-muted-foreground font-medium leading-relaxed max-w-2xl">
+                      <p className="text-lg text-foreground/70 font-medium leading-relaxed max-w-2xl">
                         {report.description}
                       </p>
 
-                      <div className="flex flex-wrap gap-4 pt-2">
-                        <div className="flex items-center gap-2 px-3 py-1.5 bg-muted/20 rounded-xl text-xs font-bold text-muted-foreground/80">
-                          <MapPin className="h-3.5 w-3.5" />
+                      <div className="flex flex-wrap gap-4 items-center">
+                        <div className="flex items-center gap-3 px-4 py-2 bg-background/50 rounded-2xl text-[11px] font-bold text-foreground/80 shadow-inner border border-white/10 group/loc">
+                          <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center transition-transform group-hover/loc:scale-110">
+                            <MapPin className="h-4 w-4 text-primary" />
+                          </div>
                           {report.location.address.split(',')[0]}
-                        </div>
-                        <div className="flex items-center gap-2 px-3 py-1.5 bg-muted/20 rounded-xl text-xs font-bold text-muted-foreground/80">
-                          <Shield className="h-3.5 w-3.5" />
-                          Priority {report.priority}
                         </div>
                       </div>
 
                       {report.staffComment && (
-                        <div className="bg-primary/5 rounded-[1.5rem] p-6 border-l-4 border-primary shadow-inner relative overflow-hidden group/comment">
-                          <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover/comment:scale-150"></div>
-                          <div className="flex items-center gap-2 mb-3 relative">
-                            <Shield className="h-4 w-4 text-primary" />
-                            <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Official Response</span>
+                        <div className="bg-primary/5 rounded-[2rem] p-8 border-l-[6px] border-primary shadow-inner relative overflow-hidden group/comment mt-8">
+                          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-bl-full -mr-12 -mt-12 transition-transform duration-700 group-hover/comment:scale-125"></div>
+                          <div className="flex items-center gap-3 mb-4 relative">
+                            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shadow-lg">
+                              <Shield className="h-5 w-5 text-primary" />
+                            </div>
+                            <div>
+                              <span className="text-[11px] font-black text-primary uppercase tracking-[0.3em] block">Government Directive</span>
+                              <span className="text-[9px] font-bold text-primary/60 uppercase tracking-widest">Case Verified Official</span>
+                            </div>
                           </div>
-                          <p className="text-sm text-foreground/80 leading-relaxed italic font-semibold relative">
+                          <p className="text-base text-foreground/90 leading-relaxed italic font-bold relative pl-4 border-l-2 border-primary/20">
                             "{report.staffComment}"
                           </p>
-                          <p className="text-[9px] text-muted-foreground/50 font-black uppercase tracking-widest mt-3 flex justify-end">
-                            Verified Official • {formatDate(new Date(report.updatedAt))}
-                          </p>
+                          <div className="mt-4 flex justify-end relative">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">
+                              Updated • {formatDate(new Date(report.updatedAt))}
+                            </span>
+                          </div>
                         </div>
                       )}
                     </div>
 
-                    {/* Media / Visual Side */}
-                    <div className="space-y-4">
-                      <div className="aspect-square rounded-3xl overflow-hidden border border-white/20 shadow-2xl group/media">
+                    {/* Media / Visual Side - Enhanced Visual Strength */}
+                    <div className="space-y-6">
+                      <div className="aspect-[4/5] rounded-[2rem] overflow-hidden border-2 border-white/30 shadow-2xl group/media relative">
                         <img 
                           src={report.photoUrl || "https://images.unsplash.com/photo-1518005020251-eba3f7a89ac2?auto=format&fit=crop&q=80"} 
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover/media:scale-110"
+                          className="w-full h-full object-cover transition-all duration-700 group-hover/media:scale-110 group-hover/media:rotate-1"
                         />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover/media:opacity-100 transition-opacity"></div>
                       </div>
-                      {/* Stylized Map Indicator */}
-                      <div className="h-20 bg-muted/20 rounded-2xl border border-dashed border-border/50 flex items-center justify-center group/map cursor-pointer hover:bg-muted/30 transition-colors">
-                        <div className="text-center">
-                          <MapPin className="h-5 w-5 text-primary/40 mx-auto mb-1 group-hover/map:scale-110 transition-transform" />
-                          <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40">View on Map</span>
+                      
+                      {/* Stylized Location Info Card */}
+                      <div className="bg-zinc-800/5 dark:bg-white/5 rounded-[1.5rem] p-5 border border-white/10 group/map cursor-pointer hover:bg-primary/5 transition-all duration-300">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 shadow-xl flex items-center justify-center group-hover/map:rotate-12 transition-transform">
+                            <MapPin className="h-6 w-6 text-primary" />
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Location</p>
+                            <p className="text-xs font-bold text-foreground truncate max-w-[120px]">View Details</p>
+                          </div>
                         </div>
                       </div>
                     </div>
