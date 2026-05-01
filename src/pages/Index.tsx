@@ -10,6 +10,8 @@ import { AdminDashboard } from "@/pages/AdminDashboard";
 import { mockReports } from "@/services/mockData";
 import { Report } from "@/types";
 import { motion, AnimatePresence } from "framer-motion";
+import { AlertTriangle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface User {
   id: string;
@@ -35,6 +37,7 @@ const Index = () => {
 
   const [reports, setReports] = useState<Report[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchReports = async () => {
@@ -51,14 +54,14 @@ const Index = () => {
             createdAt: new Date(r.createdAt || Date.now()),
             updatedAt: new Date(r.updatedAt || Date.now())
           }));
-          setReports(formattedData.length > 0 ? formattedData : mockReports);
+          setReports(formattedData);
+          setFetchError(false);
         } else {
-          console.warn("Received non-array data from API, using mocks");
-          setReports(mockReports);
+          throw new Error("Invalid data format received from server");
         }
       } catch (error) {
-        console.error("Failed to fetch reports, falling back to mocks:", error);
-        setReports(mockReports);
+        console.error("Failed to fetch reports:", error);
+        setFetchError(true);
       } finally {
         setIsLoading(false);
       }
@@ -115,8 +118,15 @@ const Index = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newReport),
       });
+      if (!response.ok) throw new Error("Failed to save report to database");
+      
       const savedReport = await response.json();
-      setReports(prev => [{ ...savedReport, createdAt: new Date(savedReport.createdAt), updatedAt: new Date(savedReport.updatedAt) }, ...prev]);
+      setReports(prev => [{ 
+        ...savedReport, 
+        createdAt: new Date(savedReport.createdAt), 
+        updatedAt: new Date(savedReport.updatedAt) 
+      }, ...prev]);
+      
       setCurrentPage("dashboard");
       toast({
         title: "Report Submitted Successfully!",
@@ -124,9 +134,11 @@ const Index = () => {
       });
     } catch (error) {
       console.error("Submission failed:", error);
-      // Fallback to local state if backend is down
-      setReports(prev => [newReport, ...prev]);
-      setCurrentPage("dashboard");
+      toast({
+        title: "Submission Error",
+        description: "Your report could not be saved to the database. Please try again.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -188,6 +200,28 @@ const Index = () => {
         return <Hero key="hero" onNavigate={handleNavigate} />;
     }
   };
+
+  if (fetchError) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background space-y-6 p-4 text-center">
+        <div className="w-20 h-20 bg-destructive/10 rounded-[2rem] flex items-center justify-center text-destructive">
+          <AlertTriangle className="h-10 w-10" />
+        </div>
+        <div className="space-y-2">
+          <h2 className="text-2xl font-black uppercase tracking-tight">Database Connection Failed</h2>
+          <p className="text-muted-foreground font-medium max-w-md mx-auto">
+            We're unable to sync with the Samvad Civic Grid. This might be due to a network issue or database maintenance.
+          </p>
+        </div>
+        <Button 
+          onClick={() => window.location.reload()}
+          className="rounded-2xl px-8 h-12 bg-primary font-bold shadow-civic"
+        >
+          Re-establish Connection
+        </Button>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
