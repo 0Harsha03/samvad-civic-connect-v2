@@ -113,30 +113,36 @@ const Index = () => {
 
   const handleReportSubmitted = async (newReport: Report) => {
     try {
+      console.log("Submitting report:", newReport);
       const response = await fetch(`${API_URL}/api/reports`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newReport),
       });
-      if (!response.ok) throw new Error("Failed to save report to database");
       
-      const savedReport = await response.json();
+      const result = await response.json();
+      
+      if (!response.ok) {
+        console.error("Server Error:", result);
+        throw new Error(result.details || result.error || "Failed to save report to database");
+      }
+      
       setReports(prev => [{ 
-        ...savedReport, 
-        createdAt: new Date(savedReport.createdAt), 
-        updatedAt: new Date(savedReport.updatedAt) 
+        ...result, 
+        createdAt: new Date(result.createdAt), 
+        updatedAt: new Date(result.updatedAt) 
       }, ...prev]);
       
       setCurrentPage("dashboard");
       toast({
         title: "Report Submitted Successfully!",
-        description: `Your report #${newReport.id} has been saved to our secure database.`,
+        description: `Your report has been saved to the Samvad Civic Grid.`,
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Submission failed:", error);
       toast({
         title: "Submission Error",
-        description: "Your report could not be saved to the database. Please try again.",
+        description: error.message || "Your report could not be saved. Please try again.",
         variant: "destructive"
       });
     }
