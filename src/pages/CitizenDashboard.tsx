@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +28,7 @@ export const CitizenDashboard = ({ reports, userId, onNavigate }: CitizenDashboa
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [filteredReports, setFilteredReports] = useState<Report[]>([]);
+  const navigate = useNavigate();
 
   const userReports = reports.filter(report => report.userId === userId);
 
@@ -286,10 +288,17 @@ export const CitizenDashboard = ({ reports, userId, onNavigate }: CitizenDashboa
 
                       {/* Action Buttons */}
                       <div className="flex gap-4 pt-4">
-                        <Button variant="outline" className="flex-1 rounded-2xl h-12 border-primary/20 text-primary font-black text-xs uppercase tracking-widest hover:bg-primary/5">
+                        <Button 
+                          variant="outline" 
+                          onClick={() => navigate(`/report/${report.id}`)}
+                          className="flex-1 rounded-2xl h-12 border-primary/20 text-primary font-black text-xs uppercase tracking-widest hover:bg-primary/5"
+                        >
                           View Full Case
                         </Button>
-                        <Button className="flex-1 rounded-2xl h-12 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-black text-xs uppercase tracking-widest hover:scale-[1.02] transition-transform">
+                        <Button 
+                          onClick={() => navigate(`/track/${report.id}`)}
+                          className="flex-1 rounded-2xl h-12 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-black text-xs uppercase tracking-widest hover:scale-[1.02] transition-transform"
+                        >
                           Track Live
                         </Button>
                       </div>
