@@ -290,13 +290,13 @@ export const CitizenDashboard = ({ reports, userId, onNavigate }: CitizenDashboa
                       <div className="flex gap-4 pt-4">
                         <Button 
                           variant="outline" 
-                          onClick={() => navigate(`/report/${report.id}`)}
+                          onClick={() => navigate(`/report/${report.id}`, { state: { report } })}
                           className="flex-1 rounded-2xl h-12 border-primary/20 text-primary font-black text-xs uppercase tracking-widest hover:bg-primary/5"
                         >
                           View Full Case
                         </Button>
                         <Button 
-                          onClick={() => navigate(`/track/${report.id}`)}
+                          onClick={() => navigate(`/track/${report.id}`, { state: { report } })}
                           className="flex-1 rounded-2xl h-12 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-black text-xs uppercase tracking-widest hover:scale-[1.02] transition-transform"
                         >
                           Track Live

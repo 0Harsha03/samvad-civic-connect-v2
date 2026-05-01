@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -21,29 +21,46 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 const ReportDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [report, setReport] = useState<Report | null>(null);
-  const [loading, setLoading] = useState(true);
+  const location = useLocation();
+  const [report, setReport] = useState<Report | null>(location.state?.report || null);
+  const [loading, setLoading] = useState(!location.state?.report);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    console.log("ReportDetail mounted with ID:", id);
+    if (location.state?.report) {
+      console.log("Using report from state");
+      setLoading(false);
+      return;
+    }
+
     const fetchReport = async () => {
       try {
+        console.log("Fetching report from API:", `${API_URL}/api/reports/${id}`);
         const response = await fetch(`${API_URL}/api/reports/${id}`);
         if (response.ok) {
           const data = await response.json();
+          console.log("Report fetched successfully:", data);
           setReport({
             ...data,
             createdAt: new Date(data.createdAt),
             updatedAt: new Date(data.updatedAt)
           });
+        } else if (response.status === 404) {
+          console.error("Report not found (404)");
+          setError("Report not found");
+        } else {
+          setError("Failed to fetch report");
         }
       } catch (error) {
-        console.error("Failed to fetch report:", error);
+        console.error("Failed to fetch report error:", error);
+        setError("Network error occurred");
       } finally {
         setLoading(false);
       }
     };
     fetchReport();
-  }, [id]);
+  }, [id, location.state]);
 
   const getStatusIcon = (status: Report["status"]) => {
     switch (status) {
@@ -70,10 +87,10 @@ const ReportDetail = () => {
     );
   }
 
-  if (!report) {
+  if (!report || error) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center space-y-4">
-        <h2 className="text-2xl font-black">Report Not Found</h2>
+        <h2 className="text-2xl font-black">{error || "Report Not Found"}</h2>
         <Button onClick={() => navigate("/")}>Go Back</Button>
       </div>
     );

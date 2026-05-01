@@ -31,6 +31,20 @@ app.get('/api/reports', async (req, res) => {
   }
 });
 
+app.get('/api/reports/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const report = await Report.findByPk(id);
+    if (report) {
+      return res.json(report);
+    }
+    res.status(404).json({ error: 'Report not found' });
+  } catch (error) {
+    console.error('Fetch detail error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 app.post('/api/reports', async (req, res) => {
   try {
     // Ensure userId is present
