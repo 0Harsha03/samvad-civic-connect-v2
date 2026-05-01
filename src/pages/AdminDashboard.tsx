@@ -215,36 +215,45 @@ export const AdminDashboard = ({ reports, onUpdateReport }: AdminDashboardProps)
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: idx * 0.03 }}
-                    className="border-b border-border/20 hover:bg-primary/5 transition-colors cursor-pointer group"
+                    className={cn(
+                      "border-b border-border/20 hover:bg-primary/5 transition-colors cursor-pointer group relative",
+                      report.status === "Submitted" && "border-status-submitted",
+                      report.status === "Assigned" && "border-status-assigned",
+                      report.status === "In Progress" && "border-status-inprogress",
+                      report.status === "Resolved" && "border-status-resolved"
+                    )}
                   >
-                    <td className="p-6">
-                      <Badge variant="secondary" className="font-mono text-xs px-2 py-1 bg-muted/50 border-none group-hover:bg-primary/10 transition-colors">
+                    <td className="p-6 pl-8">
+                      <Badge variant="secondary" className="font-mono text-[10px] font-black px-3 py-1 bg-muted/50 border-none group-hover:bg-primary/10 transition-colors uppercase tracking-widest">
                         {report.id}
                       </Badge>
                     </td>
                     <td className="p-6">
                       <div className="max-w-md">
-                        <p className="font-bold text-foreground text-lg mb-0.5">{report.title}</p>
-                        <p className="text-sm text-muted-foreground line-clamp-1">{report.description}</p>
+                        <p className="font-black text-foreground text-lg mb-1 leading-tight">{report.title}</p>
+                        <p className="text-sm text-muted-foreground line-clamp-1 font-medium">{report.description}</p>
                       </div>
                     </td>
                     <td className="p-6">
                       <div className={cn(
-                        "font-black text-sm px-3 py-1 rounded-lg inline-block",
+                        "font-black text-[10px] px-3 py-1.5 rounded-full inline-block uppercase tracking-[0.2em] shadow-sm",
                         report.priority >= 4 ? "bg-destructive/10 text-destructive" :
                           report.priority >= 3 ? "bg-warning/10 text-warning" : "bg-success/10 text-success"
                       )}>
-                        P{report.priority}
+                        Priority {report.priority}
                       </div>
                     </td>
                     <td className="p-6">
-                      <Badge variant="outline" className={cn("rounded-full px-4 py-1 flex items-center gap-2 border-none", getStatusColor(report.status))}>
+                      <Badge variant="outline" className={cn("rounded-full px-4 py-2 flex items-center gap-2 border-none shadow-sm", getStatusColor(report.status))}>
                         {getStatusIcon(report.status)}
-                        <span className="font-bold">{report.status}</span>
+                        <span className="font-black text-[10px] uppercase tracking-wider">{report.status}</span>
                       </Badge>
                     </td>
-                    <td className="p-6 text-sm text-muted-foreground font-medium">
-                      {formatDate(report.createdAt)}
+                    <td className="p-6 text-sm text-muted-foreground/80 font-bold">
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-3.5 w-3.5" />
+                        {formatDate(report.createdAt)}
+                      </div>
                     </td>
                     <td className="p-6 text-right">
                       <Dialog>

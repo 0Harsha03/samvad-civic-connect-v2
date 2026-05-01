@@ -139,6 +139,11 @@
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
+
+  /* Civic Pattern Overlay */
+  :root, .dark {
+    --civic-pattern: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 100 L20 60 L40 80 L60 40 L80 70 L100 20 L100 100 Z' fill='hsl(var(--primary))' fill-opacity='0.03'/%3E%3C/svg%3E");
+  }
 }
 
 @layer base {
@@ -148,8 +153,9 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    background-image: var(--gradient-mesh);
+    background-image: var(--gradient-mesh), var(--civic-pattern);
     background-attachment: fixed;
+    background-size: cover, 400px;
   }
 }
 
@@ -184,6 +190,16 @@
   }
 
   .hover-lift {
-    @apply transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg;
+    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:bg-white/60 dark:hover:bg-black/60;
+  }
+
+  /* Status Borders for Cards */
+  .border-status-submitted { @apply border-l-8 border-l-muted-foreground/30; }
+  .border-status-assigned { @apply border-l-8 border-l-primary/50; }
+  .border-status-inprogress { @apply border-l-8 border-l-warning/50; }
+  .border-status-resolved { @apply border-l-8 border-l-success/50; }
+
+  .text-gradient-civic {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-secondary to-warning;
   }
 }

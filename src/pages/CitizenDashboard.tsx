@@ -183,7 +183,13 @@ export const CitizenDashboard = ({ reports, userId, onNavigate }: CitizenDashboa
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.3, delay: idx * 0.05 }}
               >
-                <Card className="glass-card border-none hover-lift overflow-hidden rounded-3xl">
+                <Card className={cn(
+                  "glass-card border-none hover-lift overflow-hidden rounded-3xl",
+                  report.status === "Submitted" && "border-status-submitted",
+                  report.status === "Assigned" && "border-status-assigned",
+                  report.status === "In Progress" && "border-status-inprogress",
+                  report.status === "Resolved" && "border-status-resolved"
+                )}>
                   <CardContent className="p-0">
                     <div className="flex flex-col lg:flex-row">
                       {/* Left: Image if exists */}
@@ -194,7 +200,7 @@ export const CitizenDashboard = ({ reports, userId, onNavigate }: CitizenDashboa
                           className="w-full h-full object-cover transition-transform duration-700 hover:scale-110"
                         />
                         <div className="absolute top-4 left-4">
-                          <Badge variant="secondary" className="glass backdrop-blur-md border-none px-3 py-1">
+                          <Badge variant="secondary" className="glass backdrop-blur-md border-none px-3 py-1 font-bold text-xs uppercase tracking-wider">
                             {report.category}
                           </Badge>
                         </div>
@@ -202,36 +208,40 @@ export const CitizenDashboard = ({ reports, userId, onNavigate }: CitizenDashboa
 
                       {/* Right: Content */}
                       <div className="flex-1 p-6 lg:p-8 flex flex-col justify-between space-y-4">
-                        <div className="space-y-2">
-                          <div className="flex flex-wrap items-center justify-between gap-3">
-                            <h3 className="text-2xl font-bold tracking-tight text-foreground">
+                        <div className="space-y-3">
+                          <div className="flex flex-wrap items-center justify-between gap-4">
+                            <h3 className="text-2xl font-black tracking-tight text-foreground leading-tight">
                               {report.title}
                             </h3>
                             <div className="flex items-center gap-3">
-                              <span className={`text-xs font-bold uppercase tracking-widest ${getPriorityColor(report.priority)}`}>
+                              <span className={cn("text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full", getPriorityColor(report.priority))}>
                                 Priority {report.priority}
                               </span>
-                              <Badge variant="outline" className={`rounded-full px-4 py-1 flex items-center gap-2 border-none ${getStatusColor(report.status)}`}>
+                              <Badge variant="outline" className={cn("rounded-full px-4 py-1.5 flex items-center gap-2 border-none shadow-sm", getStatusColor(report.status))}>
                                 {getStatusIcon(report.status)}
-                                <span className="font-bold">{report.status}</span>
+                                <span className="font-bold text-xs uppercase tracking-wider">{report.status}</span>
                               </Badge>
                             </div>
                           </div>
-                          <p className="text-muted-foreground leading-relaxed line-clamp-3">
+                          <p className="text-muted-foreground text-base leading-relaxed line-clamp-3 font-medium">
                             {report.description}
                           </p>
                         </div>
 
-                        <div className="flex flex-wrap items-center gap-6 pt-4 border-t border-border/30 text-sm font-medium">
-                          <div className="flex items-center gap-2 text-muted-foreground group/loc">
-                            <MapPin className="h-4 w-4 transition-colors group-hover/loc:text-primary" />
-                            <span>{report.location.address}</span>
+                        <div className="flex flex-wrap items-center gap-6 pt-6 border-t border-border/30 text-sm">
+                          <div className="flex items-center gap-2.5 text-muted-foreground/80 group/loc font-semibold">
+                            <div className="w-8 h-8 rounded-full bg-primary/5 flex items-center justify-center transition-colors group-hover/loc:bg-primary/10">
+                              <MapPin className="h-4 w-4 transition-colors group-hover/loc:text-primary" />
+                            </div>
+                            <span className="max-w-[200px] truncate">{report.location.address}</span>
                           </div>
-                          <div className="flex items-center gap-2 text-muted-foreground">
-                            <Clock className="h-4 w-4" />
+                          <div className="flex items-center gap-2.5 text-muted-foreground/80 font-semibold">
+                            <div className="w-8 h-8 rounded-full bg-secondary/5 flex items-center justify-center">
+                              <Clock className="h-4 w-4 text-secondary" />
+                            </div>
                             <span>Submitted {formatDate(new Date(report.createdAt))}</span>
                           </div>
-                          <div className="ml-auto flex items-center gap-2 text-xs font-mono text-muted-foreground">
+                          <div className="ml-auto flex items-center gap-2 px-3 py-1 bg-muted/50 rounded-lg text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                             ID: {report.id}
                           </div>
                         </div>
@@ -240,14 +250,16 @@ export const CitizenDashboard = ({ reports, userId, onNavigate }: CitizenDashboa
                           <motion.div
                             initial={{ height: 0, opacity: 0 }}
                             animate={{ height: "auto", opacity: 1 }}
-                            className="bg-primary/5 rounded-2xl p-4 mt-2 border-l-4 border-primary"
+                            className="bg-primary/5 rounded-2xl p-5 mt-4 border-l-4 border-primary shadow-inner"
                           >
-                            <div className="flex items-center gap-2 mb-2">
-                              <Shield className="h-4 w-4 text-primary" />
-                              <span className="text-sm font-bold text-primary uppercase tracking-wider">Government Update</span>
+                            <div className="flex items-center gap-2 mb-3">
+                              <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center">
+                                <Shield className="h-4 w-4 text-primary" />
+                              </div>
+                              <span className="text-xs font-black text-primary uppercase tracking-[0.15em]">Government Update</span>
                             </div>
-                            <p className="text-sm text-foreground leading-relaxed italic">{report.staffComment}</p>
-                            <div className="mt-2 text-[10px] text-muted-foreground flex justify-end">
+                            <p className="text-sm text-foreground/90 leading-relaxed italic font-medium">{report.staffComment}</p>
+                            <div className="mt-3 text-[10px] text-muted-foreground/70 flex justify-end font-bold uppercase tracking-wider">
                               Last updated {formatDate(new Date(report.updatedAt))}
                             </div>
                           </motion.div>

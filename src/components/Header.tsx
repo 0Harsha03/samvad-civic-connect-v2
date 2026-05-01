@@ -31,7 +31,7 @@ export const Header = ({ userRole, onNavigate, currentPage }: HeaderProps) => {
             <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-civic group-hover:scale-110 transition-transform overflow-hidden">
               <img src="/samvad-logo.png" alt="Samvad" className="w-full h-full object-cover" />
             </div>
-            <span className="text-2xl font-black tracking-tight text-foreground bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
+            <span className="text-2xl font-black tracking-tight text-gradient-civic">
               Samvad
             </span>
           </div>
