@@ -28,8 +28,8 @@ export const Header = ({ userRole, onNavigate, currentPage }: HeaderProps) => {
             className="flex items-center gap-3 cursor-pointer group"
             onClick={() => onNavigate("home")}
           >
-            <div className="w-10 h-10 bg-gradient-hero rounded-xl flex items-center justify-center shadow-civic group-hover:scale-110 transition-transform">
-              <MessageSquare className="h-6 w-6 text-white" />
+            <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-civic group-hover:scale-110 transition-transform overflow-hidden">
+              <img src="/samvad-logo.png" alt="Samvad" className="w-full h-full object-cover" />
             </div>
             <span className="text-2xl font-black tracking-tight text-foreground bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
               Samvad

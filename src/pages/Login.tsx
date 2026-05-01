@@ -52,8 +52,8 @@ export const Login = ({ onLogin }: LoginProps) => {
             animate={{ scale: 1 }}
             className="inline-flex items-center gap-3 mb-6"
           >
-            <div className="w-16 h-16 bg-gradient-hero rounded-2xl flex items-center justify-center shadow-xl">
-              <MessageSquare className="h-8 w-8 text-white" />
+            <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-xl overflow-hidden p-1">
+              <img src="/samvad-logo.png" alt="Samvad" className="w-full h-full object-cover rounded-xl" />
             </div>
           </motion.div>
           <h2 className="text-3xl font-black tracking-tight text-foreground mb-2">Welcome Back</h2>
