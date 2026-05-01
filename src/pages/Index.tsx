@@ -17,37 +17,50 @@ interface User {
   role: "citizen" | "staff";
 }
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_URL = import.meta.env.VITE_API_URL || "https://samvad-backend-1fpd.onrender.com";
 
 const Index = () => {
   const [user, setUser] = useState<User | null>(() => {
-    const saved = localStorage.getItem("samvad_user");
-    if (!saved) return null;
     try {
+      const saved = localStorage.getItem("samvad_user");
+      if (!saved) return null;
       const parsed = JSON.parse(saved);
-      return { ...parsed, createdAt: new Date(parsed.createdAt) };
+      if (!parsed || !parsed.id) return null;
+      return { ...parsed, createdAt: new Date(parsed.createdAt || Date.now()) };
     } catch (e) {
+      console.warn("Failed to parse saved user:", e);
       return null;
     }
   });
 
   const [reports, setReports] = useState<Report[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchReports = async () => {
       try {
+        console.log("Fetching from:", `${API_URL}/api/reports`);
         const response = await fetch(`${API_URL}/api/reports`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        
         const data = await response.json();
-        const formattedData = data.map((r: any) => ({
-          ...r,
-          createdAt: new Date(r.createdAt),
-          updatedAt: new Date(r.updatedAt)
-        }));
-        // If server is empty, use mock reports
-        setReports(formattedData.length > 0 ? formattedData : mockReports);
+        
+        if (Array.isArray(data)) {
+          const formattedData = data.map((r: any) => ({
+            ...r,
+            createdAt: new Date(r.createdAt || Date.now()),
+            updatedAt: new Date(r.updatedAt || Date.now())
+          }));
+          setReports(formattedData.length > 0 ? formattedData : mockReports);
+        } else {
+          console.warn("Received non-array data from API, using mocks");
+          setReports(mockReports);
+        }
       } catch (error) {
-        console.error("Failed to fetch reports:", error);
+        console.error("Failed to fetch reports, falling back to mocks:", error);
         setReports(mockReports);
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchReports();
@@ -175,6 +188,27 @@ const Index = () => {
         return <Hero key="hero" onNavigate={handleNavigate} />;
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background space-y-6">
+        <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-2xl animate-bounce">
+          <img src="/samvad-logo.png" alt="Samvad" className="w-10 h-10 object-contain" />
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          <div className="h-1 w-48 bg-muted rounded-full overflow-hidden">
+            <motion.div 
+              initial={{ x: "-100%" }}
+              animate={{ x: "100%" }}
+              transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
+              className="h-full w-1/2 bg-primary shadow-[0_0_15px_rgba(var(--primary),0.5)]"
+            />
+          </div>
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground animate-pulse">Syncing Civic Data</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background selection:bg-primary/20">

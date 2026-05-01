@@ -16,7 +16,7 @@ import { Report } from "@/types";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_URL = import.meta.env.VITE_API_URL || "https://samvad-backend-1fpd.onrender.com";
 
 const ReportDetail = () => {
   const { id } = useParams();
