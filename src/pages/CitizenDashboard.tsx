@@ -10,7 +10,8 @@ import {
   Search,
   MapPin,
   Plus,
-  Shield
+  Shield,
+  Users
 } from "lucide-react";
 import { Report } from "@/types";
 import { cn } from "@/lib/utils";
