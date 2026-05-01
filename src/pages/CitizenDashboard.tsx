@@ -78,67 +78,82 @@ export const CitizenDashboard = ({ reports, userId, onNavigate }: CitizenDashboa
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="max-w-4xl mx-auto p-4 lg:p-12 space-y-12"
+      className="max-w-6xl mx-auto p-4 lg:p-8 space-y-10"
     >
-      {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
-        <div className="space-y-2">
-          <h1 className="text-4xl font-black tracking-tighter text-foreground">
-            Activity Feed
-          </h1>
-          <div className="flex items-center gap-4 text-muted-foreground font-semibold">
-            <span className="flex items-center gap-1.5 px-3 py-1 bg-primary/5 rounded-full text-xs text-primary">
-              <AlertTriangle className="h-3 w-3" />
-              {userReports.length} Total
-            </span>
-            <span className="flex items-center gap-1.5 px-3 py-1 bg-success/5 rounded-full text-xs text-success">
-              <CheckCircle className="h-3 w-3" />
-              {userReports.filter(r => r.status === "Resolved").length} Resolved
-            </span>
-          </div>
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
+        <div className="space-y-1">
+          <h1 className="text-4xl font-black tracking-tight text-foreground">My Community Reports</h1>
+          <p className="text-muted-foreground text-lg">Real-time tracking of your civic contributions</p>
         </div>
         <Button
           variant="civic"
           size="lg"
-          className="rounded-2xl px-10 h-14 shadow-civic hover-lift font-bold"
+          className="rounded-full px-8 shadow-civic hover-lift"
           onClick={() => onNavigate("report")}
         >
-          <Plus className="h-5 w-5 mr-2 stroke-[3]" />
-          Submit Report
+          <Plus className="h-5 w-5 mr-2" />
+          Report New Issue
         </Button>
       </div>
 
-      {/* Modern Filter Bar */}
-      <div className="flex flex-col md:flex-row gap-4 items-center bg-white/30 dark:bg-black/30 backdrop-blur-xl p-2 rounded-[2rem] border border-white/20">
-        <div className="relative flex-1 w-full group">
-          <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground/50 transition-colors group-focus-within:text-primary" />
-          <Input
-            placeholder="Search your activity..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-14 h-14 bg-transparent border-none rounded-2xl text-lg focus-visible:ring-0"
-          />
-        </div>
-        <div className="flex gap-1 p-1 bg-muted/30 rounded-2xl w-full md:w-auto">
-          {["all", "In Progress", "Resolved"].map((status) => (
-            <button
-              key={status}
-              onClick={() => setStatusFilter(status)}
-              className={cn(
-                "flex-1 md:flex-none px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all",
-                statusFilter === status 
-                  ? "bg-white dark:bg-zinc-800 shadow-xl scale-[1.02] text-primary" 
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              {status === "all" ? "All" : status}
-            </button>
-          ))}
-        </div>
+      {/* Stats Section */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { label: "Total Reports", value: userReports.length, icon: AlertTriangle, color: "primary" },
+          { label: "In Progress", value: userReports.filter(r => r.status === "In Progress").length, icon: Clock, color: "warning" },
+          { label: "Resolved", value: userReports.filter(r => r.status === "Resolved").length, icon: CheckCircle, color: "success" },
+          { label: "Pending", value: userReports.filter(r => r.status === "Submitted").length, icon: AlertTriangle, color: "muted" }
+        ].map((stat, i) => (
+          <motion.div
+            key={stat.label}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.1 }}
+          >
+            <Card className="glass-card border-none hover-lift overflow-hidden group">
+              <CardContent className="p-6 relative">
+                <div className={`absolute top-0 right-0 w-16 h-16 bg-${stat.color === 'muted' ? 'muted' : stat.color}/10 rounded-bl-full flex items-center justify-center transition-transform group-hover:scale-110`}>
+                  <stat.icon className={`h-6 w-6 text-${stat.color === 'muted' ? 'muted-foreground' : stat.color}`} />
+                </div>
+                <p className="text-3xl font-black text-foreground mb-1">{stat.value}</p>
+                <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">{stat.label}</p>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
       </div>
 
+      {/* Filters & Search */}
+      <Card className="glass-card border-none rounded-3xl p-2">
+        <CardContent className="p-4 flex flex-col md:flex-row gap-6">
+          <div className="relative flex-1 group">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground transition-colors group-focus-within:text-primary" />
+            <Input
+              placeholder="Search issues, categories, or descriptions..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-12 h-14 bg-background/30 border-none rounded-2xl text-lg focus-visible:ring-primary/20"
+            />
+          </div>
+          <div className="flex flex-wrap gap-2 items-center">
+            {["all", "Submitted", "Assigned", "In Progress", "Resolved"].map((status) => (
+              <Button
+                key={status}
+                variant={statusFilter === status ? "civic" : "ghost"}
+                size="sm"
+                className={`rounded-full px-6 h-10 transition-all ${statusFilter === status ? "shadow-lg scale-105" : "hover:bg-primary/5"}`}
+                onClick={() => setStatusFilter(status)}
+              >
+                {status === "all" ? "All Status" : status}
+              </Button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Activity Timeline Feed */}
-      <div className="relative space-y-16 before:absolute before:left-[19px] before:top-4 before:bottom-4 before:w-[4px] before:bg-gradient-to-b before:from-primary before:via-secondary/40 before:to-transparent before:rounded-full">
+      <div className="relative space-y-16 before:absolute before:left-[19px] before:top-4 before:bottom-4 before:w-[4px] before:bg-gradient-to-b before:from-primary before:via-secondary/40 before:to-transparent before:rounded-full pt-10">
         <AnimatePresence mode="popLayout">
           {filteredReports.length === 0 ? (
             <motion.div
