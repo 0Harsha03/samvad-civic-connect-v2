@@ -196,6 +196,8 @@ const TrackLive = () => {
               <p className="text-[10px] font-bold text-muted-foreground">End-to-end encrypted civic data feed</p>
             </div>
           </div>
+        </div>
+
         {/* Live Operational Map */}
         <div className="space-y-6 pt-12 border-t border-border/30">
           <div className="flex items-center justify-between">
