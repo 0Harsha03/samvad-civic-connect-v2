@@ -73,7 +73,7 @@ const Index = () => {
     if (user) {
       return user.role === "citizen" ? "dashboard" : "admin";
     }
-    return "login";
+    return "home";
   });
   const { toast } = useToast();
 
