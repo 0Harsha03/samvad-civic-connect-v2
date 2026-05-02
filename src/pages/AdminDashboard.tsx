@@ -20,7 +20,8 @@ import {
   Camera,
   X,
   Loader2,
-  Upload
+  Upload,
+  Shield
 } from "lucide-react";
 import { Report } from "@/types";
 import { cn } from "@/lib/utils";
