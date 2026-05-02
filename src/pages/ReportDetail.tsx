@@ -15,6 +15,7 @@ import {
 import { Report } from "@/types";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+import { CivicMap } from "@/components/CivicMap";
 
 const API_URL = import.meta.env.VITE_API_URL || "https://samvad-backend-1fpd.onrender.com";
 
@@ -211,10 +212,16 @@ const ReportDetail = () => {
               </div>
 
               <div className="pt-6 border-t border-border/20">
-                <div className="h-32 bg-muted/20 rounded-[1.5rem] border border-dashed border-border/50 flex flex-col items-center justify-center group cursor-pointer hover:bg-muted/30 transition-all">
-                  <MapPin className="h-6 w-6 text-primary/40 mb-2" />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">View Live Map</span>
+                <div className="h-48 rounded-[1.5rem] overflow-hidden border border-border/50 shadow-inner group relative">
+                  <CivicMap 
+                    lat={report.location.lat} 
+                    lng={report.location.lng} 
+                    address={report.location.address}
+                    interactive={false}
+                  />
+                  <div className="absolute inset-0 bg-primary/5 pointer-events-none group-hover:bg-transparent transition-all" />
                 </div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 mt-3 text-center">Precise Incident Geolocation</p>
               </div>
             </div>
           </aside>

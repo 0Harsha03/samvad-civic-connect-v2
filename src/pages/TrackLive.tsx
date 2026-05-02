@@ -16,6 +16,7 @@ import {
 import { Report } from "@/types";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+import { CivicMap } from "@/components/CivicMap";
 
 const API_URL = import.meta.env.VITE_API_URL || "https://samvad-backend-1fpd.onrender.com";
 
@@ -193,6 +194,29 @@ const TrackLive = () => {
             <div>
               <p className="text-xs font-black uppercase tracking-widest text-success">Secure Connection</p>
               <p className="text-[10px] font-bold text-muted-foreground">End-to-end encrypted civic data feed</p>
+            </div>
+          </div>
+        {/* Live Operational Map */}
+        <div className="space-y-6 pt-12 border-t border-border/30">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-xs font-black uppercase tracking-[0.4em] text-primary">Operational Map</h2>
+              <p className="text-sm font-bold text-muted-foreground mt-1">Live tracking of resolution coordinates</p>
+            </div>
+            <Badge variant="outline" className="rounded-full border-primary/20 text-primary animate-pulse">
+              LIVE SIGNAL
+            </Badge>
+          </div>
+          <div className="h-[400px] rounded-[3rem] overflow-hidden shadow-2xl border-4 border-white/20 relative group">
+            <CivicMap 
+              lat={report.location.lat} 
+              lng={report.location.lng} 
+              address={report.location.address}
+              zoom={16}
+            />
+            <div className="absolute top-6 left-6 z-[1000] glass-card p-4 rounded-2xl border border-white/20 shadow-xl pointer-events-none">
+              <p className="text-[10px] font-black uppercase tracking-widest text-primary/60 mb-1">Asset Location</p>
+              <p className="text-xs font-bold">{report.location.lat.toFixed(4)}, {report.location.lng.toFixed(4)}</p>
             </div>
           </div>
         </div>
