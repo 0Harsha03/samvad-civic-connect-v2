@@ -73,7 +73,7 @@ const Index = () => {
     if (user) {
       return user.role === "citizen" ? "dashboard" : "admin";
     }
-    return "home";
+    return "login";
   });
   const { toast } = useToast();
 
@@ -99,16 +99,18 @@ const Index = () => {
   };
 
   const handleNavigate = (page: string) => {
-    if (page === "home") {
-      setUser(null);
-      setCurrentPage("home");
-    } else if ((page === "report" || page === "dashboard") && !user) {
+    if ((page === "report" || page === "dashboard") && !user) {
       setCurrentPage("login");
     } else if (page === "admin" && user?.role !== "staff") {
       setCurrentPage("login");
     } else {
       setCurrentPage(page);
     }
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    setCurrentPage("login");
   };
 
   const handleReportSubmitted = async (newReport: Report) => {
@@ -255,6 +257,7 @@ const Index = () => {
       <Header
         userRole={user?.role || null}
         onNavigate={handleNavigate}
+        onLogout={handleLogout}
         currentPage={currentPage}
       />
       <main className="pb-12 pt-6">
