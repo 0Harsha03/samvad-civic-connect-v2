@@ -14,6 +14,7 @@ export interface Report {
   userId: string;
   assignedStaffId?: string;
   staffComment?: string;
+  resolutionPhotoUrl?: string;
   createdAt: Date;
   updatedAt: Date;
 }

@@ -16,9 +16,11 @@ import {
   MapPin,
   TrendingUp,
   Eye,
-  MessageSquare,
-  Shield,
-  LayoutDashboard
+  LayoutDashboard,
+  Camera,
+  X,
+  Loader2,
+  Upload
 } from "lucide-react";
 import { Report } from "@/types";
 import { cn } from "@/lib/utils";
@@ -37,6 +39,9 @@ export const AdminDashboard = ({ reports, onUpdateReport }: AdminDashboardProps)
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [newStatus, setNewStatus] = useState<string>("");
   const [staffComment, setStaffComment] = useState("");
+  const [resolutionFile, setResolutionFile] = useState<File | null>(null);
+  const [resolutionPreview, setResolutionPreview] = useState<string>("");
+  const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
     let filtered = [...reports].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
@@ -57,15 +62,59 @@ export const AdminDashboard = ({ reports, onUpdateReport }: AdminDashboardProps)
     setFilteredReports(filtered);
   }, [searchTerm, statusFilter, priorityFilter, reports]);
 
-  const handleUpdateReport = () => {
+  const uploadImage = async (file: File): Promise<string | undefined> => {
+    const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+    const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+    
+    if (!cloudName || !uploadPreset) {
+      console.warn("Cloudinary credentials missing.");
+      return undefined;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", uploadPreset);
+
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error("Cloudinary upload failed");
+      const data = await res.json();
+      return data.secure_url;
+    } catch (error) {
+      console.error("Image upload error:", error);
+      return undefined;
+    }
+  };
+
+  const handleUpdateReport = async () => {
     if (!selectedReport || !newStatus) return;
+    setIsUpdating(true);
+    
+    let resolutionPhotoUrl = selectedReport.resolutionPhotoUrl;
+    
+    if (resolutionFile) {
+      const uploadedUrl = await uploadImage(resolutionFile);
+      if (uploadedUrl) {
+        resolutionPhotoUrl = uploadedUrl;
+      }
+    }
+
     onUpdateReport(selectedReport.id, {
       status: newStatus as Report["status"],
       staffComment: staffComment.trim(),
+      resolutionPhotoUrl,
       updatedAt: new Date(),
       assignedStaffId: "staff1"
     });
+    
+    setIsUpdating(false);
     setSelectedReport(null);
+    setResolutionFile(null);
+    setResolutionPreview("");
   };
 
   const getStatusIcon = (status: Report["status"]) => {
@@ -266,6 +315,7 @@ export const AdminDashboard = ({ reports, onUpdateReport }: AdminDashboardProps)
                               setSelectedReport(report);
                               setNewStatus(report.status);
                               setStaffComment(report.staffComment || "");
+                              setResolutionPreview(report.resolutionPhotoUrl || "");
                             }}
                           >
                             Manage
@@ -331,23 +381,68 @@ export const AdminDashboard = ({ reports, onUpdateReport }: AdminDashboardProps)
                                         </SelectContent>
                                       </Select>
                                     </div>
-                                    <div className="space-y-3">
-                                      <Label className="font-bold">Official Directives</Label>
-                                      <Textarea
-                                        placeholder="Enter instructions or updates..."
-                                        value={staffComment}
-                                        onChange={(e) => setStaffComment(e.target.value)}
-                                        className="rounded-2xl bg-muted/30 border-none glass min-h-[120px] p-5"
-                                      />
+                                    <div className="space-y-3 lg:col-span-2 pt-4 border-t border-white/10">
+                                      <Label className="font-bold flex items-center gap-2">
+                                        <Camera className="h-4 w-4" /> Resolution Proof (Visual Confirmation)
+                                      </Label>
+                                      <div className="grid lg:grid-cols-2 gap-6 items-center">
+                                        <div 
+                                          className="relative border-2 border-dashed border-primary/20 rounded-2xl p-6 text-center hover:bg-primary/5 cursor-pointer transition-all"
+                                          onClick={() => document.getElementById('res-upload')?.click()}
+                                        >
+                                          {resolutionPreview ? (
+                                            <div className="relative">
+                                              <img src={resolutionPreview} className="h-32 w-full object-cover rounded-xl" alt="Preview" />
+                                              <Button 
+                                                variant="destructive" 
+                                                size="icon" 
+                                                className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  setResolutionPreview("");
+                                                  setResolutionFile(null);
+                                                }}
+                                              >
+                                                <X className="h-3 w-3" />
+                                              </Button>
+                                            </div>
+                                          ) : (
+                                            <div className="space-y-1">
+                                              <Upload className="h-6 w-6 text-primary mx-auto mb-2" />
+                                              <p className="text-xs font-bold">Click to Upload Proof</p>
+                                            </div>
+                                          )}
+                                          <input 
+                                            id="res-upload" 
+                                            type="file" 
+                                            accept="image/*" 
+                                            className="hidden" 
+                                            onChange={(e) => {
+                                              const file = e.target.files?.[0];
+                                              if (file) {
+                                                setResolutionFile(file);
+                                                const reader = new FileReader();
+                                                reader.onload = (e) => setResolutionPreview(e.target?.result as string);
+                                                reader.readAsDataURL(file);
+                                              }
+                                            }}
+                                          />
+                                        </div>
+                                        <div className="text-xs text-muted-foreground bg-primary/5 p-4 rounded-xl border border-primary/10">
+                                          <p className="font-bold text-primary mb-1">PRO TIP:</p>
+                                          Resolution photos significantly increase citizen trust. Ensure the fixed asset is clearly visible.
+                                        </div>
+                                      </div>
                                     </div>
                                   </div>
                                   <Button
                                     variant="civic"
                                     className="w-full h-16 rounded-[1.5rem] text-lg font-black shadow-civic hover-lift"
                                     onClick={handleUpdateReport}
-                                    disabled={newStatus === selectedReport.status && staffComment === (selectedReport.staffComment || "")}
+                                    disabled={isUpdating || (newStatus === selectedReport.status && staffComment === (selectedReport.staffComment || "") && !resolutionFile)}
                                   >
-                                    Commit Response
+                                    {isUpdating ? <Loader2 className="h-6 w-6 animate-spin mr-2" /> : null}
+                                    {isUpdating ? "Committing Response..." : "Commit Response"}
                                   </Button>
                                 </section>
                               </div>

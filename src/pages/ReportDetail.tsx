@@ -177,9 +177,18 @@ const ReportDetail = () => {
                     <p className="text-[10px] font-bold text-primary/60 uppercase tracking-widest">Authorized Government Directive</p>
                   </div>
                 </div>
-                <p className="text-2xl text-foreground/90 leading-relaxed italic font-bold relative pl-6 border-l-4 border-primary/20">
+                <p className="text-2xl text-foreground/90 leading-relaxed italic font-bold relative pl-6 border-l-4 border-primary/20 mb-8">
                   "{report.staffComment}"
                 </p>
+                {report.resolutionPhotoUrl && (
+                  <div className="mt-8 rounded-[2rem] overflow-hidden border-4 border-white/40 shadow-2xl group relative">
+                    <img src={report.resolutionPhotoUrl} alt="Resolution" className="w-full h-64 object-cover" />
+                    <div className="absolute inset-0 bg-primary/10 pointer-events-none group-hover:bg-transparent transition-all" />
+                    <div className="absolute bottom-4 left-6 z-10">
+                       <Badge className="bg-success text-white px-4 py-2 rounded-xl text-xs font-black shadow-xl">RESOLUTION PROOF</Badge>
+                    </div>
+                  </div>
+                )}
                 <div className="mt-8 pt-8 border-t border-primary/10 flex justify-between items-center relative">
                   <div className="flex items-center gap-2">
                     <Users className="h-4 w-4 text-primary" />

@@ -166,6 +166,20 @@ const TrackLive = () => {
                       </span>
                     </div>
                   )}
+
+                  {stage.name === 'Resolved' && report.status === 'Resolved' && report.resolutionPhotoUrl && (
+                    <motion.div 
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="mt-8 rounded-3xl overflow-hidden border-4 border-success/20 shadow-xl"
+                    >
+                      <img src={report.resolutionPhotoUrl} alt="Resolution" className="w-full h-48 object-cover" />
+                      <div className="bg-success/10 p-4 border-t border-success/20 flex items-center justify-between">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-success">Verified Resolution Proof</span>
+                        <CheckCircle className="h-4 w-4 text-success" />
+                      </div>
+                    </motion.div>
+                  )}
                 </div>
               </motion.div>
             );

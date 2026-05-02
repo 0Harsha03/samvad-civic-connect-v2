@@ -61,6 +61,10 @@ const Report = sequelize.define('Report', {
     type: DataTypes.TEXT,
     allowNull: true
   },
+  resolutionPhotoUrl: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
   assignedStaffId: {
     type: DataTypes.STRING,
     allowNull: true
