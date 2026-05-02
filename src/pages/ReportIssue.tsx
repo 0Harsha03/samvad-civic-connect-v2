@@ -30,6 +30,7 @@ export const ReportIssue = ({ userId, onReportSubmitted }: ReportIssueProps) => 
   const [step, setStep] = useState(1);
   const [description, setDescription] = useState("");
   const [photoPreview, setPhotoPreview] = useState<string>("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [location, setLocation] = useState<{ lat: number; lng: number; address: string } | null>(null);
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -41,6 +42,8 @@ export const ReportIssue = ({ userId, onReportSubmitted }: ReportIssueProps) => 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setSelectedFile(file);
+      console.log("File selected:", file.name, file.size, file.type);
       const reader = new FileReader();
       reader.onload = (e) => setPhotoPreview(e.target?.result as string);
       reader.readAsDataURL(file);
@@ -87,10 +90,57 @@ export const ReportIssue = ({ userId, onReportSubmitted }: ReportIssueProps) => 
     }
   };
 
+  const uploadImage = async (file: File | string): Promise<string | undefined> => {
+    const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+    const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+    
+    console.log("Cloudinary Config:", { cloudName, uploadPreset: uploadPreset ? "PRESENT" : "MISSING" });
+
+    if (!cloudName || !uploadPreset) {
+      console.warn("Cloudinary credentials missing. Falling back to local storage.");
+      return typeof file === 'string' ? file : photoPreview;
+    }
+
+    try {
+      console.log("Starting Cloudinary upload...");
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", uploadPreset);
+
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error?.message || "Cloudinary upload failed");
+      }
+      
+      const data = await res.json();
+      console.log("Cloudinary upload successful! URL:", data.secure_url);
+      return data.secure_url;
+    } catch (error) {
+      console.error("Image upload error:", error);
+      return typeof file === 'string' ? file : photoPreview;
+    }
+  };
+
   const submitReport = async () => {
     if (!description.trim() || !location) return;
     setIsSubmitting(true);
-    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    console.log("Submitting report. Current photo state:", { 
+      hasPreview: !!photoPreview, 
+      hasFile: !!selectedFile 
+    });
+
+    let finalPhotoUrl = photoPreview || undefined;
+    
+    // If we have a photo, upload it to the cloud first
+    if (selectedFile || photoPreview) {
+      finalPhotoUrl = await uploadImage(selectedFile || photoPreview);
+    }
 
     const newReport: Report = {
       id: `RPT${String(Date.now()).slice(-3)}`,
@@ -99,7 +149,7 @@ export const ReportIssue = ({ userId, onReportSubmitted }: ReportIssueProps) => 
       category: (aiResult?.category as Report["category"]) || "Other",
       priority: (aiResult?.priority as Report["priority"]) || 2,
       status: "Submitted",
-      photoUrl: photoPreview || undefined,
+      photoUrl: finalPhotoUrl,
       location,
       userId: userId,
       createdAt: new Date(),
